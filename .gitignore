@@ -1,0 +1,57 @@
+# Arquivos de ambiente Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Arquivos de configuração de IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Arquivos de sistema
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Arquivos de backup de ferramentas de BI
+*.pbix.backup
+*.qvw.backup
+*.qvf.backup
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Logs
+logs/
+*.log
+
+# Credenciais (caso alguém acidentalmente commite)
+credentials.txt
+config.ini
+.env
+
