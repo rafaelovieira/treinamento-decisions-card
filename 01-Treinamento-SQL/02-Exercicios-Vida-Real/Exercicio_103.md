@@ -2,7 +2,7 @@
 
 ## 📝 Pergunta
 
-Calcule quantas contas foram ativadas (mudaram de status inativo para ativo). Considere contas que têm `fl_status_conta = 'A'` e possuem pelo menos uma venda ativa registrada.
+Calcule quantas contas foram ativadas (mudaram de status inativo para ativo). Consulte a tabela `t_dominio` para identificar o código de status ativo e considere contas que possuem pelo menos uma venda ativa registrada.
 
 ## 🎯 Objetivo
 
@@ -27,6 +27,7 @@ Contas ativadas representam clientes que não apenas se cadastraram, mas efetiva
 ## 📋 Critérios de Avaliação
 
 - [ ] Query executa sem erros
+- [ ] Consulta a tabela t_dominio para identificar status ativo
 - [ ] Filtra contas ativas
 - [ ] Verifica existência de vendas
 - [ ] Conta clientes únicos

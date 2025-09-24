@@ -2,7 +2,7 @@
 
 ## 📝 Pergunta
 
-Calcule o percentual de contas bloqueadas em relação ao total de contas cadastradas. Considere como bloqueadas as contas que possuem pelo menos um registro ativo na tabela `t_bloqueio_cliente` (`fl_liberado = 'N'`).
+Calcule o percentual de contas bloqueadas em relação ao total de contas cadastradas. Considere como bloqueadas as contas que possuem pelo menos um registro ativo na tabela `t_bloqueio_cliente`. Consulte a tabela `t_dominio` para identificar o código correspondente a bloqueios não liberados.
 
 Mostre o resultado como: `total_contas`, `contas_bloqueadas`, `percentual_bloqueadas`.
 
@@ -30,6 +30,7 @@ Alto percentual de bloqueios pode indicar problemas na política de crédito ou 
 
 - [ ] Query executa sem erros
 - [ ] Conta total de contas corretamente
+- [ ] Consulta a tabela t_dominio para identificar bloqueios não liberados
 - [ ] Identifica contas com bloqueio ativo
 - [ ] Calcula percentual corretamente
 - [ ] Apresenta os três valores solicitados

@@ -31,7 +31,7 @@ SELECT COUNT(*) FROM decisionscard.t_cliente;
 
 ### Metodologia
 
-1. **Visão Geral:** Consulte o arquivo `00_LISTA_DE_EXERCICIOS.md` para ver todos os exercícios disponíveis
+1. **Visão Geral:** Consulte o arquivo [`00_LISTA_DE_EXERCICIOS.md`](./00_LISTA_DE_EXERCICIOS.md) para ver todos os exercícios disponíveis
 2. **Resolução Individual:** Abra cada arquivo `Exercicio_XX.md` para resolver
 3. **Escrita da Query:** Dentro de cada arquivo, você encontrará um bloco de código SQL onde deve escrever sua resposta
 4. **Commit Granular:** Após resolver cada exercício, faça um commit específico para aquele arquivo
@@ -91,9 +91,9 @@ O banco de dados `decisionscard_training` contém o schema `decisionscard` com a
 
 Após configurar seu ambiente:
 
-1. Leia a `Historia_do_Fluxo_de_Dados.md` na pasta `00-Recursos` para entender o contexto
-2. Analise o diagrama `Modelo_de_Dados.png` para visualizar os relacionamentos
-3. Comece pelos exercícios em `00_LISTA_DE_EXERCICIOS.md`
+1. Leia a [`Historia_do_Fluxo_de_Dados.md`](../00-Recursos/Historia_do_Fluxo_de_Dados.md) na pasta `00-Recursos` para entender o contexto
+2. Analise o diagrama [`Modelo_de_Dados.png`](../00-Recursos/Modelo_de_Dados.png) para visualizar os relacionamentos
+3. Comece pelos exercícios em [`00_LISTA_DE_EXERCICIOS.md`](./00_LISTA_DE_EXERCICIOS.md)
 
 **Lembre-se:** O objetivo é aprender. Tente resolver os desafios antes de buscar ajuda externa!
 

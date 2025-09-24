@@ -2,7 +2,7 @@
 
 ## 📝 Pergunta
 
-Calcule a quantidade de contas ativas na base. Considere como conta ativa aquelas com `fl_status_conta = 'A'`. Mostre apenas o número total.
+Calcule a quantidade de contas ativas na base. Para identificar o código correspondente a contas ativas, consulte a tabela `t_dominio` apropriada. Mostre apenas o número total.
 
 ## 🎯 Objetivo
 
@@ -29,5 +29,6 @@ Contas ativas representam o potencial de receita da empresa. É um indicador imp
 - [ ] Query executa sem erros
 - [ ] Filtra apenas contas ativas
 - [ ] Retorna apenas um número
+- [ ] Consulta a tabela t_dominio para identificar o código de status ativo
 - [ ] Usa o campo fl_status_conta corretamente
 
