@@ -17,8 +17,9 @@ A quantidade de contas cadastradas é um KPI fundamental para medir o cresciment
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
 
+SELECT COUNT(DISTINCT id_cliente)
+FROM decisionscard.t_cliente;
 
 ```
 
