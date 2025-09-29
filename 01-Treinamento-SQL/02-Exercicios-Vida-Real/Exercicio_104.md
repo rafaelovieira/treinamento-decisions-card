@@ -21,8 +21,21 @@ Como a base não é atualizada há muito tempo, use `(SELECT MAX(dt_venda) FROM 
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
 
+SELECT COUNT(DISTINCT tc.id_cliente) AS clientes_sem_compras_90_dias
+FROM decisionscard.t_venda tv
+JOIN decisionscard.t_cliente tc ON tc.id_cliente = tv.id_cliente 
+WHERE 
+	tc.fl_status_conta = 'A' AND 
+	tv.fl_status_venda = 'A' AND
+	tc.id_cliente NOT IN
+		(SELECT DISTINCT id_cliente 
+		 FROM decisionscard.t_venda 
+		 WHERE 
+		 	dt_venda BETWEEN (SELECT MAX(dt_venda) - INTERVAL '90 days' FROM decisionscard.t_venda) AND 
+		 	(SELECT MAX(dt_venda) FROM decisionscard.t_venda)
+		)
+;
 
 ```
 
