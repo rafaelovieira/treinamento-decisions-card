@@ -29,8 +29,49 @@ Este relatório ajuda a identificar problemas no funil de aprovação e monitora
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
 
+WITH status AS (
+	SELECT 
+		id_cliente,
+		CASE
+			WHEN fl_status_analise = 'P' THEN 'Pendente Análise'
+			WHEN fl_status_analise = 'R' THEN 'Rejeitada'		
+		END AS situacao
+	FROM decisionscard.t_cliente	
+	
+	UNION ALL 
+	
+	SELECT
+		id_cliente,
+		CASE
+			WHEN fl_status_conta = 'A' THEN 'Ativa'
+			WHEN fl_status_conta = 'I' THEN 'Inativa'
+		END AS situacao
+	FROM decisionscard.t_cliente
+), tabela AS (
+	SELECT DISTINCT situacao
+	FROM status
+	WHERE situacao IS NOT null
+	UNION ALL 
+	SELECT 'Pendente Análise'
+), contagem AS (
+	SELECT situacao, COUNT(id_cliente) AS quantidade
+	FROM status 
+	WHERE situacao IS NOT NULL
+	GROUP BY situacao
+), tabela_contagem AS (
+	SELECT t.situacao AS situacao , COALESCE(c.quantidade, 0) AS quantidade
+	FROM tabela t
+	LEFT JOIN contagem c ON t.situacao = c.situacao 
+	ORDER BY quantidade DESC, situacao
+)
+SELECT 
+	situacao, 
+	quantidade,
+	ROUND(quantidade / (SELECT SUM(quantidade) FROM tabela_contagem) * 100, 2) AS percentual
+FROM tabela_contagem
+GROUP BY situacao, quantidade
+ORDER BY quantidade DESC;
 
 ```
 
