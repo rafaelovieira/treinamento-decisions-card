@@ -27,8 +27,79 @@ A evolução trimestral permite identificar sazonalidades e avaliar o impacto de
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
 
+WITH cadastradas AS (
+	SELECT 
+		id_cliente,
+		dt_cadastro, 
+		EXTRACT(YEAR FROM dt_cadastro) AS ano,
+		EXTRACT(MONTH FROM dt_cadastro) AS mes,
+		CASE
+			WHEN EXTRACT(MONTH FROM dt_cadastro) BETWEEN 1 AND 3 THEN 1
+			WHEN EXTRACT(MONTH FROM dt_cadastro) BETWEEN 4 AND 6 THEN 2
+			WHEN EXTRACT(MONTH FROM dt_cadastro) BETWEEN 7 AND 9 THEN 3
+			WHEN EXTRACT(MONTH FROM dt_cadastro) BETWEEN 10 AND 12 THEN 4
+		END AS trimestre	
+	FROM decisionscard.t_cliente
+	WHERE dt_cadastro >= (SELECT MAX(dt_cadastro) - INTERVAL '2 year' FROM decisionscard.t_cliente)
+), primeira_compra AS (
+	SELECT 
+		tv.id_cliente,
+		MIN(tv.dt_venda) AS data_primeira_compra
+	FROM decisionscard.t_venda tv
+	JOIN decisionscard.t_cliente tc ON tv.id_cliente = tc.id_cliente
+	WHERE tc.dt_cadastro >= (SELECT MAX(dt_cadastro) - INTERVAL '2 year' FROM decisionscard.t_cliente) AND
+	fl_status_venda = 'A'
+	GROUP BY tv.id_cliente
+), ativadas AS (
+	SELECT 
+		id_cliente,
+		data_primeira_compra,
+		EXTRACT(YEAR FROM data_primeira_compra) AS ano,
+			EXTRACT(MONTH FROM data_primeira_compra) AS mes,
+			CASE
+				WHEN EXTRACT(MONTH FROM data_primeira_compra) BETWEEN 1 AND 3 THEN 1
+				WHEN EXTRACT(MONTH FROM data_primeira_compra) BETWEEN 4 AND 6 THEN 2
+				WHEN EXTRACT(MONTH FROM data_primeira_compra) BETWEEN 7 AND 9 THEN 3
+				WHEN EXTRACT(MONTH FROM data_primeira_compra) BETWEEN 10 AND 12 THEN 4
+			END AS trimestre
+	FROM primeira_compra
+), contagem_cadastradas AS (
+	SELECT 
+		ano,
+		trimestre,
+		CONCAT(ano, '-T', trimestre) AS periodo,
+		COUNT(trimestre) AS contas_cadastradas
+	FROM cadastradas
+	GROUP BY ano, trimestre
+), contagem_ativadas AS (
+	SELECT 
+		ano,
+		trimestre,
+		CONCAT(ano, '-T', trimestre) AS periodo,
+		COUNT(trimestre) AS contas_ativadas
+	FROM ativadas
+	GROUP BY ano, trimestre
+), tabela AS (
+	SELECT
+		cc.ano,
+		cc.trimestre,
+		cc.periodo,
+		cc.contas_cadastradas,
+		ca.contas_ativadas,
+		ROUND(CAST(ca.contas_ativadas AS NUMERIC) / cc.contas_cadastradas * 100, 2) AS taxa_ativacao
+	FROM contagem_cadastradas cc
+	JOIN contagem_ativadas ca ON cc.periodo = ca.periodo
+	GROUP BY cc.ano, cc.trimestre, cc.periodo, cc.contas_cadastradas, ca.contas_ativadas
+	ORDER BY cc.ano, cc.trimestre
+)
+SELECT 
+	*,
+	CASE
+		WHEN LAG(contas_cadastradas) OVER(ORDER BY periodo) IS NULL THEN 0
+		ELSE ROUND(CAST(contas_cadastradas AS NUMERIC) / (LAG(contas_cadastradas) OVER(ORDER BY periodo)) * 100, 2) 
+	END AS taxa_crescimento
+FROM tabela;
 
 ```
 
