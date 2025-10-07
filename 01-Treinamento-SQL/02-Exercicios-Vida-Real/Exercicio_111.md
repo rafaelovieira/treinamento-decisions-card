@@ -27,8 +27,93 @@ Entender quando os clientes se ativam após o cadastro permite personalizar camp
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
 
+WITH tabela_data AS (
+	SELECT 
+		id_cliente AS clientes_cadastrados,
+		dt_cadastro,
+		TO_CHAR(dt_cadastro, 'YYYY-MM') AS mes_cadastro,
+		TO_CHAR(dt_cadastro, 'MM') AS mes_cad
+	FROM decisionscard.t_cliente
+	WHERE dt_cadastro >= (SELECT MAX(dt_cadastro) - INTERVAL '6 MONTH' FROM decisionscard.t_cliente)
+), qtd_cadastrados AS (
+	SELECT
+		mes_cadastro,
+		COUNT(clientes_cadastrados) AS total_cadastrados
+	FROM tabela_data
+	GROUP BY mes_cadastro
+), primeira_compra AS (
+	SELECT 
+		td.clientes_cadastrados,
+		td.mes_cadastro,
+		td.mes_cad,
+		MIN(tv.dt_venda) AS data_prim_compra,
+		TO_CHAR(MIN(tv.dt_venda), 'MM') AS mes_com
+	FROM tabela_data td
+	JOIN decisionscard.t_venda tv ON td.clientes_cadastrados  = tv.id_cliente
+	WHERE td.clientes_cadastrados IS NOT NULL
+	GROUP BY td.clientes_cadastrados, td.mes_cadastro, td.mes_cad
+), ativacao AS (
+	SELECT
+		clientes_cadastrados,
+		mes_cadastro,
+		mes_cad,
+		mes_com,
+		CASE 
+			WHEN mes_cad = mes_com THEN 1
+			WHEN mes_com::numeric = (mes_cad::numeric + 1) THEN 2
+			ELSE 3
+		END AS comparacao
+	FROM primeira_compra
+), mes_1 AS (
+	SELECT 
+		mes_cadastro,
+		COUNT(clientes_cadastrados)	AS ativados_mes1
+	FROM ativacao
+	WHERE comparacao = 1
+	GROUP BY mes_cadastro
+	ORDER BY mes_cadastro 
+), mes_2 AS (
+	SELECT 
+		mes_cadastro,
+		COUNT(clientes_cadastrados)	AS ativados_mes2
+	FROM ativacao
+	WHERE comparacao = 2
+	GROUP BY mes_cadastro
+	ORDER BY mes_cadastro 
+), mes_3 AS (
+	SELECT 
+		mes_cadastro,
+		COUNT(clientes_cadastrados)	AS ativados_mes3_plus
+	FROM ativacao
+	WHERE comparacao = 3
+	GROUP BY mes_cadastro
+	ORDER BY mes_cadastro
+), tabela_meses AS (
+	SELECT DISTINCT mes_cadastro
+	FROM tabela_data
+	UNION ALL SELECT '2023-06'
+	ORDER BY mes_cadastro
+), tabela AS (
+	SELECT 
+		tm.mes_cadastro,
+		COALESCE(qc.total_cadastrados, 0) AS total_cadastrados,
+		COALESCE(m1.ativados_mes1, 0) AS ativados_mes1,
+		COALESCE(m2.ativados_mes2, 0) AS ativados_mes2,
+		COALESCE(m3.ativados_mes3_plus, 0) AS ativados_mes3_plus
+	FROM tabela_meses tm
+	LEFT JOIN qtd_cadastrados qc ON tm.mes_cadastro = qc.mes_cadastro
+	LEFT JOIN mes_1 m1 ON tm.mes_cadastro = m1.mes_cadastro
+	LEFT JOIN mes_2 m2 ON tm.mes_cadastro = m2.mes_cadastro
+	LEFT JOIN mes_3 m3 ON tm.mes_cadastro = m3.mes_cadastro
+)
+SELECT 
+	*,
+	COALESCE(ROUND(ativados_mes1::NUMERIC / NULLIF(total_cadastrados, 0) * 100, 2), 0) AS taxa_ativacao_mes1,
+	COALESCE(ROUND(ativados_mes2::NUMERIC / NULLIF(total_cadastrados, 0) * 100, 2), 0) AS taxa_ativacao_mes2,
+	COALESCE(ROUND(ativados_mes3_plus::NUMERIC / NULLIF(total_cadastrados, 0) * 100, 2), 0) AS taxa_ativacao_mes3_plus,
+	COALESCE(ROUND((ativados_mes1 + ativados_mes2 + ativados_mes3_plus)::NUMERIC / NULLIF(total_cadastrados, 0) * 100, 2), 0) AS taxa_ativacao_total
+FROM tabela;
 
 ```
 
