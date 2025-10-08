@@ -30,7 +30,23 @@ Conhecer os melhores clientes permite criar programas de fidelidade e ações co
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
+SELECT 
+	ROW_NUMBER() OVER(ORDER BY SUM(tv.vl_venda) DESC) AS posicao,
+	tc.id_cliente,
+	tc.nm_cliente,
+	COUNT(tv.id_venda) AS qtd_compras,
+	SUM(tv.vl_venda) AS valor_total,
+	ROUND(SUM(tv.vl_venda) / COUNT(tv.id_venda), 2) AS ticket_medio,
+	MIN(TO_CHAR(tv.dt_venda, 'YYYY-MM-DD')) AS primeira_compra,
+	MAX(TO_CHAR(tv.dt_venda, 'YYYY-MM-DD')) AS ultima_compra,
+	MAX(TO_CHAR(tv.dt_venda, 'YYYY-MM-DD'))::date - MIN(TO_CHAR(tv.dt_venda, 'YYYY-MM-DD'))::date AS dias_cliente,
+	ROUND(COUNT(tv.id_venda)::NUMERIC / ((MAX(TO_CHAR(tv.dt_venda, 'YYYY-MM-DD'))::date - MIN(TO_CHAR(tv.dt_venda, 'YYYY-MM-DD'))::date) / 30), 2) AS frequencia_compra
+FROM decisionscard.t_cliente tc
+JOIN decisionscard.t_venda tv ON tc.id_cliente = tv.id_cliente 
+WHERE tv.fl_status_venda = 'A'
+GROUP BY tc.id_cliente 
+ORDER BY valor_total DESC
+LIMIT 50;
 
 
 ```
