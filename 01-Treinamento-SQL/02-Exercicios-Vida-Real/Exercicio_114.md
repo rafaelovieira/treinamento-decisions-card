@@ -29,8 +29,19 @@ A distribuição por status ajuda a identificar problemas operacionais e monitor
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
 
+SELECT
+	CASE
+		WHEN fl_status_cartao = 'A' THEN 'Ativo'
+		WHEN fl_status_cartao = 'B' THEN 'Bloqueado'
+		WHEN fl_status_cartao = 'C' THEN 'Cancelado'
+		ELSE 'Inativo'
+	END AS situacao,
+	COUNT(id_cartao) AS quantidade,
+	ROUND(COUNT(id_cartao)::NUMERIC / (SELECT COUNT(id_cartao) FROM decisionscard.t_cartao) * 100, 2) AS percentual
+FROM decisionscard.t_cartao
+GROUP BY situacao
+ORDER BY quantidade DESC;
 
 ```
 
