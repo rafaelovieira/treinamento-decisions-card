@@ -23,8 +23,25 @@ Identificar os tipos de bloqueio mais frequentes ajuda a melhorar processos e re
 ## ✍️ Sua Resposta
 
 ```sql
--- Escreva sua query aqui
 
+WITH tabela AS (
+	SELECT 
+		tcar.id_cartao,
+		tbc.id_tipo_bloqueio_cartao,
+		ttbc.ds_tipo_bloqueio_cartao 
+	FROM decisionscard.t_cobranca tcob
+	JOIN decisionscard.t_cartao tcar ON tcob.id_cliente = tcar.id_cliente 
+	JOIN decisionscard.t_bloqueio_cartao tbc ON tcar.id_cartao = tbc.id_cartao 
+	JOIN decisionscard.t_tipo_bloqueio_cartao ttbc ON ttbc.id_tipo_bloqueio_cartao = tbc.id_tipo_bloqueio_cartao 
+	WHERE fl_ativo = 'S'
+)
+SELECT 
+	ds_tipo_bloqueio_cartao,
+	COUNT(id_tipo_bloqueio_cartao) AS quantidade_cartoes,
+	ROUND(COUNT(id_tipo_bloqueio_cartao)::NUMERIC / (SELECT COUNT(id_tipo_bloqueio_cartao) FROM tabela a) * 100, 2) AS percentual_total_bloqueios
+FROM tabela
+GROUP BY ds_tipo_bloqueio_cartao
+ORDER BY quantidade_cartoes DESC;
 
 ```
 
