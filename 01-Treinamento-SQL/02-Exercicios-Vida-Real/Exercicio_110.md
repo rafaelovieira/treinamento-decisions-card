@@ -40,7 +40,6 @@ WITH tabela_data AS (
 		SUM(COUNT(id_cliente)) OVER(ORDER BY ano_mes) AS contas_acumulado
 	FROM tabela_data
 	GROUP BY ano_mes
-	ORDER BY ano_mes
 )
 SELECT 
 	ano_mes,
@@ -48,10 +47,11 @@ SELECT
 	contas_acumulado,
 	CASE 
 		WHEN LAG(contas_mes) OVER(ORDER BY ano_mes) IS NULL THEN 0
-		ELSE ROUND(CAST(contas_mes AS NUMERIC) / (LAG(contas_mes) OVER(ORDER BY ano_mes)) * 100, 2)
+		ELSE ROUND((contas_mes::NUMERIC / (LAG(contas_mes) OVER(ORDER BY ano_mes)) - 1) * 100, 2)
 	END AS crescimento_mensal,
 	ROUND(AVG(contas_mes) OVER(ORDER BY ano_mes ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS media_movel_3m
-FROM quantidade_contas;
+FROM quantidade_contas
+ORDER BY ano_mes;
 
 
 ```
