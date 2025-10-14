@@ -24,7 +24,7 @@ Use `(SELECT MAX(dt_venda) FROM decisionscard.t_venda) - INTERVAL '90 days'` par
 
 ```sql
 
-WITH quantidades AS (
+WITH quantidades AS ( 
 	SELECT
 		(SELECT COUNT(id_cliente) FROM decisionscard.t_cliente) AS total_contas_cadastradas,
 		(SELECT COUNT(tc.id_cliente)
