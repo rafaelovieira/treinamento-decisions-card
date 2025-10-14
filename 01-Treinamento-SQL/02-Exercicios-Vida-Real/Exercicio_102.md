@@ -18,9 +18,9 @@ Contas ativas representam o potencial de receita da empresa. É um indicador imp
 
 ```sql
 
-select COUNT(distinct id_cliente)
-from decisionscard.t_cliente
-where fl_status_conta = 'A';
+SELECT COUNT(id_cliente) AS contas_ativas
+FROM decisionscard.t_cliente
+WHERE fl_status_conta = 'A';
 
 ```
 
