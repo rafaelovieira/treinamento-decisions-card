@@ -18,10 +18,10 @@ Contas ativadas representam clientes que não apenas se cadastraram, mas efetiva
 
 ```sql
 
-SELECT COUNT(DISTINCT tc.id_cliente)
-FROM decisionscard.t_cliente tc
-JOIN decisionscard.t_venda tv ON tc.id_cliente = tv.id_cliente 
-WHERE tc.fl_status_conta = 'A' AND tv.fl_status_venda = 'A';
+SELECT COUNT(DISTINCT tv.id_cliente) AS contas_ativadas
+FROM decisionscard.t_venda tv 
+JOIN decisionscard.t_cliente tc ON tv.id_cliente = tc.id_cliente 
+WHERE tc.fl_status_conta = 'A';
 
 ```
 
