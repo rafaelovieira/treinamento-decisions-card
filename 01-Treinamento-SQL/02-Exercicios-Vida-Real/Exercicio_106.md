@@ -26,23 +26,19 @@ Use `(SELECT MAX(dt_venda) FROM decisionscard.t_venda) - INTERVAL '90 days'` par
 
 WITH quantidades AS (
 	SELECT
-		(SELECT COUNT(DISTINCT id_cliente) FROM decisionscard.t_cliente) AS total_contas_cadastradas,
-		(SELECT COUNT(DISTINCT tc.id_cliente)
-		FROM decisionscard.t_venda tv
-		JOIN decisionscard.t_cliente tc ON tc.id_cliente = tv.id_cliente 
-		WHERE 
-			tc.fl_status_conta = 'A' AND 
-			tv.fl_status_venda = 'A' AND
-			tc.id_cliente NOT IN
-				(SELECT DISTINCT id_cliente 
-				 FROM decisionscard.t_venda 
-				 WHERE dt_venda BETWEEN (SELECT MAX(dt_venda) - INTERVAL '90 days' FROM decisionscard.t_venda) AND 
-				 	(SELECT MAX(dt_venda) FROM decisionscard.t_venda))) AS contas_sem_compras_90_dias 
+		(SELECT COUNT(id_cliente) FROM decisionscard.t_cliente) AS total_contas_cadastradas,
+		(SELECT COUNT(tc.id_cliente)
+         FROM decisionscard.t_cliente tc 
+         WHERE NOT EXISTS (SELECT id_cliente 
+		                   FROM decisionscard.t_venda tv
+		                   WHERE 
+		                       dt_venda::DATE >= (SELECT MAX(dt_venda)::DATE - INTERVAL '90 days' FROM decisionscard.t_venda) 
+		                       AND tc.id_cliente = tv.id_cliente)) AS contas_sem_compras_90_dias 
 )
 SELECT
 	total_contas_cadastradas,
 	contas_sem_compras_90_dias,
-	ROUND(CAST(contas_sem_compras_90_dias AS NUMERIC) / CAST(total_contas_cadastradas AS NUMERIC) * 100, 2) AS percentual_contas_sem_compras_90_dias
+	ROUND(contas_sem_compras_90_dias::NUMERIC / total_contas_cadastradas * 100, 2) AS percentual_contas_sem_compras_90_dias
 FROM quantidades;
 
 ```
