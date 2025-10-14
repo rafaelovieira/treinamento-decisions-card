@@ -38,9 +38,7 @@ WITH status AS (
 			WHEN fl_status_analise = 'R' THEN 'Rejeitada'		
 		END AS situacao
 	FROM decisionscard.t_cliente	
-	
 	UNION ALL 
-	
 	SELECT
 		id_cliente,
 		CASE
@@ -51,26 +49,34 @@ WITH status AS (
 ), tabela AS (
 	SELECT DISTINCT situacao
 	FROM status
-	WHERE situacao IS NOT null
+	WHERE situacao IS NOT NULL
 	UNION ALL 
 	SELECT 'Pendente Análise'
 ), contagem AS (
-	SELECT situacao, COUNT(id_cliente) AS quantidade
+	SELECT 
+	    situacao, 
+	    COUNT(id_cliente) AS quantidade
 	FROM status 
 	WHERE situacao IS NOT NULL
 	GROUP BY situacao
 ), tabela_contagem AS (
-	SELECT t.situacao AS situacao , COALESCE(c.quantidade, 0) AS quantidade
+	SELECT 
+	    t.situacao AS situacao, 
+	    COALESCE(c.quantidade, 0) AS quantidade
 	FROM tabela t
 	LEFT JOIN contagem c ON t.situacao = c.situacao 
-	ORDER BY quantidade DESC, situacao
+	ORDER BY 
+	    quantidade DESC, 
+	    situacao
 )
 SELECT 
 	situacao, 
 	quantidade,
 	ROUND(quantidade / (SELECT SUM(quantidade) FROM tabela_contagem) * 100, 2) AS percentual
 FROM tabela_contagem
-GROUP BY situacao, quantidade
+GROUP BY 
+    situacao, 
+    quantidade
 ORDER BY quantidade DESC;
 
 ```
