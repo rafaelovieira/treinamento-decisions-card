@@ -51,8 +51,10 @@ WITH tabela_data AS (
 		TO_CHAR(MIN(tv.dt_venda), 'MM') AS mes_com
 	FROM tabela_data td
 	JOIN decisionscard.t_venda tv ON td.clientes_cadastrados  = tv.id_cliente
-	WHERE td.clientes_cadastrados IS NOT NULL
-	GROUP BY td.clientes_cadastrados, td.mes_cadastro, td.mes_cad
+	GROUP BY 
+	    td.clientes_cadastrados, 
+	    td.mes_cadastro, 
+	    td.mes_cad
 ), ativacao AS (
 	SELECT
 		clientes_cadastrados,
@@ -61,7 +63,7 @@ WITH tabela_data AS (
 		mes_com,
 		CASE 
 			WHEN mes_cad = mes_com THEN 1
-			WHEN mes_com::numeric = (mes_cad::numeric + 1) THEN 2
+			WHEN mes_com::INT = (mes_cad::INT + 1) THEN 2
 			ELSE 3
 		END AS comparacao
 	FROM primeira_compra
@@ -89,23 +91,17 @@ WITH tabela_data AS (
 	WHERE comparacao = 3
 	GROUP BY mes_cadastro
 	ORDER BY mes_cadastro
-), tabela_meses AS (
-	SELECT DISTINCT mes_cadastro
-	FROM tabela_data
-	UNION ALL SELECT '2023-06'
-	ORDER BY mes_cadastro
 ), tabela AS (
 	SELECT 
-		tm.mes_cadastro,
+		qc.mes_cadastro,
 		COALESCE(qc.total_cadastrados, 0) AS total_cadastrados,
 		COALESCE(m1.ativados_mes1, 0) AS ativados_mes1,
 		COALESCE(m2.ativados_mes2, 0) AS ativados_mes2,
 		COALESCE(m3.ativados_mes3_plus, 0) AS ativados_mes3_plus
-	FROM tabela_meses tm
-	LEFT JOIN qtd_cadastrados qc ON tm.mes_cadastro = qc.mes_cadastro
-	LEFT JOIN mes_1 m1 ON tm.mes_cadastro = m1.mes_cadastro
-	LEFT JOIN mes_2 m2 ON tm.mes_cadastro = m2.mes_cadastro
-	LEFT JOIN mes_3 m3 ON tm.mes_cadastro = m3.mes_cadastro
+	FROM qtd_cadastrados qc 
+	LEFT JOIN mes_1 m1 ON qc.mes_cadastro = m1.mes_cadastro
+	LEFT JOIN mes_2 m2 ON qc.mes_cadastro = m2.mes_cadastro
+	LEFT JOIN mes_3 m3 ON qc.mes_cadastro = m3.mes_cadastro
 )
 SELECT 
 	*,
@@ -113,7 +109,8 @@ SELECT
 	COALESCE(ROUND(ativados_mes2::NUMERIC / NULLIF(total_cadastrados, 0) * 100, 2), 0) AS taxa_ativacao_mes2,
 	COALESCE(ROUND(ativados_mes3_plus::NUMERIC / NULLIF(total_cadastrados, 0) * 100, 2), 0) AS taxa_ativacao_mes3_plus,
 	COALESCE(ROUND((ativados_mes1 + ativados_mes2 + ativados_mes3_plus)::NUMERIC / NULLIF(total_cadastrados, 0) * 100, 2), 0) AS taxa_ativacao_total
-FROM tabela;
+FROM tabela
+ORDER BY mes_cadastro;
 
 ```
 
