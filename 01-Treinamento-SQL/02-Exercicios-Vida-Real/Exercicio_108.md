@@ -39,6 +39,7 @@ WITH origem AS (
 		COUNT(id_origem_comercial) AS quantidade_contas 
 	FROM decisionscard.t_cliente 
 	GROUP BY id_origem_comercial
+	HAVING COUNT(id_origem_comercial) >= 10
 ), qtd_ativas AS (
 	SELECT 
 		id_origem_comercial, 
@@ -56,8 +57,10 @@ SELECT
 FROM origem o
 JOIN qtd_contas qc ON o.id_rede = qc.id_origem_comercial 
 JOIN qtd_ativas qa ON qc.id_origem_comercial = qa.id_origem_comercial 
-WHERE qc.quantidade_contas >= 10
-GROUP BY nm_fantasia, qc.quantidade_contas, qa.contas_ativas 
+GROUP BY 
+    nm_fantasia, 
+    qc.quantidade_contas, 
+    qa.contas_ativas 
 ORDER BY qc.quantidade_contas DESC;
 
 
